@@ -1,2 +1,2 @@
 ### Burger Builder App
-A simple React application to hand-craft your owm burger with your own combination of the ingredients
+A simple React application to hand-craft your own burger with your own combination of the ingredients
