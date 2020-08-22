@@ -5,6 +5,9 @@ import Burger from '../../components/Burger/Burger';
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
+import axios from '../../axiosInterceptor';
+import Spinner from '../../components/UI/Spinner/Spinner';
+import errorHandler from '../../hoc/ErrorHandler';
 
 const INGREDIENT_PRICES = {
     meat: 80,
@@ -15,15 +18,22 @@ const INGREDIENT_PRICES = {
 
 class BurgerBuilder extends Component{
     state = {
-        ingredients: {
-            cheese: 0,
-            salad: 0,
-            bacon: 0,
-            meat: 0
-        },
+        ingredients: null,
         totalAmt: 50,
         canPurchase: false,
-        checkOut: false
+        checkOut: false,
+        loadIng: false,
+        loadError: false
+    }
+
+    componentDidMount () {
+        axios.get("/ingredients.json")
+            .then(res => {
+                this.setState({ingredients: res.data});
+            })
+            .catch(err => {
+                this.setState({loadError: true});
+            })
     }
 
     addIngredientHandler = type => {
@@ -66,33 +76,59 @@ class BurgerBuilder extends Component{
     }
 
     purchaseContinueHandler = () => {
-        alert("Um...you can, but this feature isn't added yet");
+        const queryParams = [];
+        for(let i in this.state.ingredients){
+            queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]));
+        }
+        queryParams.push('amt=' + this.state.totalAmt);
+        const queryString = queryParams.join('&');
+        this.props.history.push({
+            pathname: '/checkout',
+            search: '?' + queryString
+        });
     }
 
     render(){
         const disableInfo = {...this.state.ingredients};
         for(let i in disableInfo)
             disableInfo[i] = disableInfo[i] <= 0;
+        
+        let orderSummary = null;
+        let burger = this.state.loadError ? <p>Ingredients are absent</p> : <Spinner />;
+
+        if(this.state.ingredients){
+            burger = (
+                    <Aux>
+                        <Burger ingredients={this.state.ingredients}/>
+                        <BuildControls
+                        disabled={disableInfo}
+                        IngreAdded={this.addIngredientHandler}
+                        IngreRemoved={this.removeIngredientHandler}
+                        amount={this.state.totalAmt}
+                        canBuy={this.state.canPurchase}
+                        ordered={this.purchaseHandler}/>
+                    </Aux>);
+            orderSummary = (
+                <OrderSummary
+                 amount={this.state.totalAmt}
+                 ingredients={this.state.ingredients}
+                 canceled={this.purchaseCancelHandler}
+                 continue={this.purchaseContinueHandler} />
+            );
+        }
+
+        if(this.state.loadIng)
+            orderSummary = <Spinner />;
+
         return (
             <Aux>
                 <Modal show={this.state.checkOut} modalClosed={this.purchaseCancelHandler}>
-                    <OrderSummary
-                     amount={this.state.totalAmt}
-                     ingredients={this.state.ingredients}
-                     canceled={this.purchaseCancelHandler}
-                     continue={this.purchaseContinueHandler} />
+                    {orderSummary}
                 </Modal>
-                <Burger ingredients={this.state.ingredients}/>
-                <BuildControls
-                 disabled={disableInfo}
-                 IngreAdded={this.addIngredientHandler}
-                 IngreRemoved={this.removeIngredientHandler}
-                 amount={this.state.totalAmt}
-                 canBuy={this.state.canPurchase}
-                 ordered={this.purchaseHandler}/>
+                {burger}
             </Aux>
         );
     }
 }
 
-export default BurgerBuilder;
+export default errorHandler(BurgerBuilder, axios);
