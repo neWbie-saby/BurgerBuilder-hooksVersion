@@ -9,25 +9,30 @@ const errorHandler = (WrappedCompo, axios) => {
             error: null
         };
 
-        constructor (props) {
-            super(props);
-            
+
+        UNSAFE_componentWillMount () {
             this.reqInterceptor = axios.interceptors.request.use(req => {
                 // console.log(req);
-                // this.setState({error: null});
-                this.state = {
-                    error: null
-                };
+                this.setState({error: null});
+                // this.state = {
+                //     error: null
+                // };
                 return req;
+            }, err => {
+                this.setState({error: err});
             });
             this.resInterceptor = axios.interceptors.response.use(res => res, err => {
-                // console.log(err);
-                // this.setState({error: err});
-                this.state = {
-                    error: err
-                };
+                // console.log(err.message);
+                this.setState({error: err});
+                // this.state = {
+                //     error: err
+                // };
             });
             // console.log(this.state.error);
+        }
+
+        componentDidMount () {
+            // (this.state.error) ? console.log(this.state.error.message) : console.log('NULL');
         }
 
         componentWillUnmount () {
