@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect} from 'react-redux';
 
 import classes from './ContactData.module.css';
 import Button from '../../../components/UI/Button/Button';
@@ -100,8 +101,8 @@ class ContactData extends Component {
             customerDets[id] = this.state.orderForm[id].value;
         }
         const order = {
-            ingredients: this.props.ingredients,
-            totalAmt: this.props.amount,
+            ingredients: this.props.ings,
+            totalAmt: this.props.price,
             customer: customerDets
         };
         axios.post("/orders.json", order)
@@ -185,4 +186,11 @@ class ContactData extends Component {
     }
 }
 
-export default ContactData;
+const mapStateToProps = state => {
+    return {
+        ings: state.ingredients,
+        price: state.totalAmt
+    }
+}
+
+export default connect(mapStateToProps)(ContactData);
