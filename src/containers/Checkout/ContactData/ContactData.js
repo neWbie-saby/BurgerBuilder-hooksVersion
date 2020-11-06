@@ -6,6 +6,8 @@ import Button from '../../../components/UI/Button/Button';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import axios from '../../../axiosInterceptor';
 import Input from '../../../components/UI/Input/Input';
+import errorHandler from '../../../hoc/ErrorHandler';
+import * as orderActions from '../../../store/actions/index';
 
 class ContactData extends Component {
     state = {
@@ -89,8 +91,7 @@ class ContactData extends Component {
                 valid: true
             }
         },
-        formCanSubmit: false,
-        loadIng: false
+        formCanSubmit: false
     }
 
     orderHandler = (event) => {
@@ -105,15 +106,7 @@ class ContactData extends Component {
             totalAmt: this.props.price,
             customer: customerDets
         };
-        axios.post("/orders.json", order)
-            .then(res => {
-                // console.log(res);
-                this.setState({ loadIng: false });
-                this.props.history.push('/');
-            }, err => {
-                // console.log(err);
-                this.setState({ loadIng: false });
-            });
+        this.props.onBurgerOrder(order);
     }
 
     formInputChangeHandler = (event, inputType) => {
@@ -175,7 +168,7 @@ class ContactData extends Component {
                 <Button btnType='Success' disabled={!this.state.formCanSubmit} clicked={this.orderHandler}>ORDER</Button>
             </form>
         );
-        if(this.state.loadIng)
+        if(this.props.loading)
             form = <Spinner />
         return (
             <div className={classes.ContactData}>
@@ -188,9 +181,16 @@ class ContactData extends Component {
 
 const mapStateToProps = state => {
     return {
-        ings: state.ingredients,
-        price: state.totalAmt
+        ings: state.burgerBuilder.ingredients,
+        price: state.burgerBuilder.totalAmt,
+        loading: state.order.loading
     }
 }
 
-export default connect(mapStateToProps)(ContactData);
+const mapDispatchToProps = dispatch => {
+    return {
+        onBurgerOrder: (orderData) => dispatch(orderActions.purchaseBurger(orderData))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(errorHandler(ContactData, axios));

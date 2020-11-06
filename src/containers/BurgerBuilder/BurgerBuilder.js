@@ -6,26 +6,18 @@ import Burger from '../../components/Burger/Burger';
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
-import axios from '../../axiosInterceptor';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import errorHandler from '../../hoc/ErrorHandler';
-import * as actionTypes from '../../store/actions';
+import * as builderActions from '../../store/actions/index';
+import axios from '../../axiosInterceptor';
 
 class BurgerBuilder extends Component{
     state = {
-        checkOut: false,
-        loadIng: false,
-        loadError: false
+        checkOut: false
     }
 
     componentDidMount () {
-        // axios.get("/ingredients.json")
-        //     .then(res => {
-        //         this.setState({ingredients: res.data});
-        //     })
-        //     .catch(err => {
-        //         this.setState({loadError: true});
-        //     })
+        this.props.onInitIngredients();
     }
 
     updatePurchaseState (ingredients) {
@@ -46,6 +38,7 @@ class BurgerBuilder extends Component{
     }
 
     purchaseContinueHandler = () => {
+        this.props.onInitPurchase();
         this.props.history.push('/checkout');
     }
 
@@ -55,7 +48,7 @@ class BurgerBuilder extends Component{
             disableInfo[i] = disableInfo[i] <= 0;
         
         let orderSummary = null;
-        let burger = this.state.loadError ? <p>Ingredients are absent</p> : <Spinner />;
+        let burger = this.props.loadError ? <p>Ingredients are absent</p> : <Spinner />;
 
         if(this.props.ings){
             burger = (
@@ -78,9 +71,6 @@ class BurgerBuilder extends Component{
             );
         }
 
-        if(this.state.loadIng)
-            orderSummary = <Spinner />;
-
         return (
             <Aux>
                 <Modal show={this.state.checkOut} modalClosed={this.purchaseCancelHandler}>
@@ -94,15 +84,18 @@ class BurgerBuilder extends Component{
 
 const mapStateToProps = state => {
     return {
-        ings: state.ingredients,
-        price: state.totalAmt
+        ings: state.burgerBuilder.ingredients,
+        price: state.burgerBuilder.totalAmt,
+        loadError: state.burgerBuilder.loadError
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        onIngredAdded: (name) => dispatch({type: actionTypes.ADD_INGREDIENT, ingredName: name}),
-        onIngredRemoved: (name) => dispatch({type: actionTypes.REMOVE_INGREDIENT, ingredName: name}),
+        onIngredAdded: (name) => dispatch(builderActions.addIngredient(name)),
+        onIngredRemoved: (name) => dispatch(builderActions.removeIngredient(name)),
+        onInitIngredients: () => dispatch(builderActions.initIngredients()),
+        onInitPurchase: () => dispatch(builderActions.purchaseInit())
     }
 }
 
