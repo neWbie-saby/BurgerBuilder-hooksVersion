@@ -10,7 +10,8 @@ const INGREDIENT_PRICES = {
 const initState = {
     ingredients: null,
     totalAmt: 50,
-    loadError: false
+    loadError: false,
+    makingOne: false
 };
 
 const addIngredient = (state, action) => {
@@ -20,7 +21,8 @@ const addIngredient = (state, action) => {
             ...state.ingredients,
             [action.ingredName]: state.ingredients[action.ingredName] + 1
         },
-        totalAmt: state.totalAmt + INGREDIENT_PRICES[action.ingredName]
+        totalAmt: state.totalAmt + INGREDIENT_PRICES[action.ingredName],
+        makingOne: true
     }
 }
 
@@ -30,8 +32,10 @@ const removeIngredient = (state, action) => {
         ingredients: {
             ...state.ingredients,
             [action.ingredName]: state.ingredients[action.ingredName] - 1
+
         },
-        totalAmt: state.totalAmt - INGREDIENT_PRICES[action.ingredName]
+        totalAmt: state.totalAmt - INGREDIENT_PRICES[action.ingredName],
+        makingOne: true
     }
 }
 
@@ -45,7 +49,8 @@ const setIngredients = (state, action) => {
             bacon: action.ingredients.bacon
         },
         loadError: false,
-        totalAmt: 50
+        totalAmt: 50,
+        makingOne: false
     }
 }
 
