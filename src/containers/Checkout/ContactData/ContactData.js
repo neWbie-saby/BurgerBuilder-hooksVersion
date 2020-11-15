@@ -8,6 +8,7 @@ import axios from '../../../axiosInterceptor';
 import Input from '../../../components/UI/Input/Input';
 import errorHandler from '../../../hoc/ErrorHandler';
 import * as orderActions from '../../../store/actions/index';
+import { checkIfValid } from '../../../shared/utility';
 
 class ContactData extends Component {
     state = {
@@ -74,7 +75,8 @@ class ContactData extends Component {
                 },
                 value: '',
                 validation: {
-                    required: true
+                    required: true,
+                    isEmail: true
                 },
                 valid: false,
                 editted: false
@@ -119,30 +121,15 @@ class ContactData extends Component {
         };
         formEleData.value = event.target.value;
         if(formEleData.validation)
-            formEleData.valid = this.checkIfValid(formEleData.value, formEleData.validation);
+            formEleData.valid = checkIfValid(formEleData.value, formEleData.validation);
         formEleData.editted = true;
         newOrderForm[inputType] = formEleData;
-        // console.log(formEleData);
+
         let formIsValid = true;
         for(let inputers in newOrderForm)
             formIsValid = newOrderForm[inputers].valid && formIsValid;
 
         this.setState({ orderForm: newOrderForm, formCanSubmit: formIsValid });
-    }
-
-    checkIfValid (inpValue, rules) {
-        let check = true;
-        inpValue = inpValue.trim();
-        if(rules.required)
-            check = inpValue !== '';
-
-        if(rules.minLength)
-            check = inpValue.length >= rules.minLength;
-        
-        if(rules.maxLength)
-            check = inpValue.length <= rules.maxLength && check;
-
-        return check;
     }
 
     render () {

@@ -10,6 +10,7 @@
 
 # production
 /build
+/src/secure
 
 # misc
 .DS_Store

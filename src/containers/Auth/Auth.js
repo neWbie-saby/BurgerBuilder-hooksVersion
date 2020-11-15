@@ -7,6 +7,7 @@ import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import * as actions from '../../store/actions/index';
+import { checkIfValid } from '../../shared/utility';
 
 class Auth extends Component {
     state = {
@@ -48,33 +49,13 @@ class Auth extends Component {
             this.props.onSetAuthRedirectPath();
     }
 
-    checkIfValid (inpValue, rules) {
-        let check = true;
-        inpValue = inpValue.trim();
-        if(rules.required)
-            check = inpValue !== '';
-
-        if(rules.minLength)
-            check = inpValue.length >= rules.minLength;
-        
-        if(rules.maxLength)
-            check = inpValue.length <= rules.maxLength && check;
-
-        if(rules.isEmail){
-            const pattern = /\S+@\S+\.\S+/;
-            check = pattern.test(inpValue) && check;
-        } 
-
-        return check;
-    }
-
     formInputChangeHandler = (event, inputType) => {
         const updatedAuths = {
             ...this.state.authForm,
             [inputType]: {
                 ...this.state.authForm[inputType],
                 value: event.target.value,
-                valid: this.checkIfValid(event.target.value, this.state.authForm[inputType].validation),
+                valid: checkIfValid(event.target.value, this.state.authForm[inputType].validation),
                 editted: true
             }
         };
