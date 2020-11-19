@@ -1,42 +1,15 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
 
 import classes from './NavItems.module.css';
+import NavItem from './NavItem/NavItem';
 
 const navItems = props => (
     <ul className={classes.NavItems}>
-        <li className={classes.EachItem}>
-            <NavLink
-             to='/'
-             exact
-             activeClassName={classes.active}>
-                Burger Builder
-            </NavLink>
-        </li>
-        {props.isAuthed
-            ? (<li className={classes.EachItem}>
-                <NavLink
-                to='/orders'
-                activeClassName={classes.active}>
-                    Orders
-                </NavLink>
-            </li>) : null
-        }
+        <NavItem link="/" exact>Burger Builder</NavItem>
+        {props.isAuthed ? (<NavItem link="/orders">Orders</NavItem>) : null}
         {!props.isAuthed
-            ? (<li className={classes.EachItem}>
-                <NavLink
-                to='/auth'
-                activeClassName={classes.active}>
-                    Authenticate
-                </NavLink>
-            </li>)
-            : (<li className={classes.EachItem}>
-                <NavLink
-                to='/logout'
-                activeClassName={classes.active}>
-                    Logout
-                </NavLink>
-            </li>)
+            ? (<NavItem link="/auth">Authenticate</NavItem>)
+            : (<NavItem link="/logout">Logout</NavItem>)
         }
     </ul>
 );

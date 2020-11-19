@@ -11,7 +11,7 @@ import errorHandler from '../../hoc/ErrorHandler';
 import * as builderActions from '../../store/actions/index';
 import axios from '../../axiosInterceptor';
 
-class BurgerBuilder extends Component{
+export class BurgerBuilder extends Component{
     state = {
         checkOut: false
     }
