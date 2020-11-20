@@ -11,6 +11,7 @@
 # production
 /build
 /src/secure
+/.firebase
 
 # misc
 .DS_Store
