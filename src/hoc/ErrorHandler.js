@@ -16,6 +16,7 @@ const errorHandler = (WrappedCompo, axios) => {
 
         const resInterceptor = axios.interceptors.response.use(res => res, err => {
             setError(err);
+            return Promise.reject(err);
         });
 
         useEffect(() => {
