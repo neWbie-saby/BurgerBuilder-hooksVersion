@@ -1,57 +1,40 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Modal from '../components/UI/Modal/Modal';
 import Aux from '../hoc/Aux';
 
 const errorHandler = (WrappedCompo, axios) => {
-    return class extends Component {
-        state = {
-            error: null
-        };
+    return props => {
+        const [error, setError] = useState(null);
 
+        const reqInterceptor = axios.interceptors.request.use(req => {
+            setError(null);
+            return req;
+        }, err => {
+            setError(err);
+        });
 
-        UNSAFE_componentWillMount () {
-            this.reqInterceptor = axios.interceptors.request.use(req => {
-                // console.log(req);
-                this.setState({error: null});
-                // this.state = {
-                //     error: null
-                // };
-                return req;
-            }, err => {
-                this.setState({error: err});
-            });
-            this.resInterceptor = axios.interceptors.response.use(res => res, err => {
-                // console.log(err.message);
-                this.setState({error: err});
-                // this.state = {
-                //     error: err
-                // };
-            });
-            // console.log(this.state.error);
-        }
+        const resInterceptor = axios.interceptors.response.use(res => res, err => {
+            setError(err);
+        });
 
-        componentDidMount () {
-            // (this.state.error) ? console.log(this.state.error.message) : console.log('NULL');
-        }
+        useEffect(() => {
+            return () => {
+                axios.interceptors.request.eject(reqInterceptor);
+                axios.interceptors.response.eject(resInterceptor);
+            }
+        }, [resInterceptor, reqInterceptor]);
 
-        componentWillUnmount () {
-            axios.interceptors.request.eject(this.reqInterceptor);
-            axios.interceptors.response.eject(this.resInterceptor);
-        }
-
-        render () {
-            return (
-                <Aux>
-                    <Modal 
-                     show={this.state.error}
-                     modalClosed={() => this.setState({error: null})}>
-                        {this.state.error ? this.state.error.message : null}
-                    </Modal>
-                    <WrappedCompo {...this.props} />
-                </Aux>
-            );
-        } 
+        return (
+            <Aux>
+                <Modal 
+                    show={error}
+                    modalClosed={() => setError(null)}>
+                    {error ? error.message : null}
+                </Modal>
+                <WrappedCompo {...props} />
+            </Aux>
+        );
     }
 }
 
